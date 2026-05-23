@@ -1,0 +1,32 @@
+name: Deploy to Firebase on Push
+
+on:
+  push:
+    branches:
+      - main # mainブランチにpushされたら起動
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. GitHubのリポジトリからコードをチェックアウト
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Node.js環境のセットアップ
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # 3. Functionsの依存関係をインストール
+      - name: Install Functions Dependencies
+        run: |
+          cd functions
+          npm ci
+
+      # 4. Firebase CLIをインストールして本番デプロイ
+      - name: Deploy to Firebase
+        run: |
+          npm install -g firebase-tools
+          firebase deploy --token "${{ secrets.FIREBASE_TOKEN }}"
